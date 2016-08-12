@@ -107,7 +107,7 @@ char *leitura(int x){
 	//	printf("get palavra(%d) -> %s\n", x, obtida);
 		resp = (char *) malloc(2+strlen(anterior)+strlen(obtida));
 		strcat(resp, anterior);
-		printf("nt(%d) = %d\n", x, nextToken(x));
+		//printf("nt(%d) = %d\n", x, nextToken(x));
 		strcat(resp, obtida);
 		if(strlen(resp) > 0 && nextToken(x))
 			strcat(resp, " ");
@@ -117,7 +117,7 @@ char *leitura(int x){
 	return resp;
 }
 
-void gerador(char *texto){
+char gerador(char *texto){
 	char token[10];
 	char *p, *q, *inteiro, *cent, *moeda, *centavos;
 	char *teste = "RS";
@@ -126,16 +126,16 @@ void gerador(char *texto){
 	p = texto;
 	q = texto;
 	
-	while(*(p-1) != 'S'){
+	while(*(p-1) != '$'){
 		//printf("%c ", *p);
 		token[p-q] = *p;
 		p++;
 	}
 	token[p - q] = '\0';
-	printf("moeda [%s]", token); 
-	if(!strcmp(token, "RS"))
+	//printf("moeda [%s]", token); 
+	if(!strcmp(token, "R$"))
 		moeda = "reais";
-	else if (!strcmp(token, "US"))
+	else if (!strcmp(token, "US$"))
 		moeda = "dólares";
 	else
 		moeda = "erro";
@@ -153,15 +153,15 @@ void gerador(char *texto){
 	do{
 		token[p-q] = *p;
 		p++;
-	} while(*p != '\0');
+	} while(p - q < 2);
 	token[p-q] = '\0';
-	printf("centavos: %s\n", token);
+	//printf("centavos: %s\n", token);
 	//token[2] = '\0';
 	if(atoi(token) > 1)
 		centavos = "centavos";
 	else if(atoi(token) == 1)
 		centavos = "centavo";
-	else if(atoi(token))
+	else if(!atoi(token))
 		centavos = "centavos";
 	else
 		centavos = "erro";
@@ -176,6 +176,7 @@ void gerador(char *texto){
 int main (int argc, char *argv[]) {
     FILE *entrada, *saida;
     /* Declara??o de suas vari?veis */
+	char caso[500];
 	
     /* Verifica se numero de argumentos de entrada e' suficiente */
     if (argc < 3) {
@@ -198,5 +199,10 @@ int main (int argc, char *argv[]) {
 	//leitura(atoi(*++argv));
 	//gerador(*(++argv));
 	//printf("%d\n", removePivo(atoi(*++argv)));
+	while(fscanf(entrada, "%s", caso) != EOF){
+		printf("%s\t", caso);
+		gerador(caso);
+	}
+	
     return 0;
 }
