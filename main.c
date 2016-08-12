@@ -1,4 +1,4 @@
-/* Mini-EP1 
+﻿/* Mini-EP1 
    NUSP: 8987847
 */
 
@@ -32,7 +32,7 @@ char *palavra(int *x){
 	char *resp;
 	char *palavra = "";
 	char *numero[4][10] = {
-		{"zero", "um", "dois", "tres", "quatro", "cinco", "seis", "sete", "oito", "nove"},
+		{"zero", "um", "dois", "três", "quatro", "cinco", "seis", "sete", "oito", "nove"},
 		{"dez", "onze", "doze", "treze", "quatorze", "quinze", "dezesseis", "dezessete", "dezoito", "dezenove"},
 		{"", "", "vinte", "trinta", "quarenta", "cinquenta", "sessenta", "setenta", "oitenta", "noventa"},
 		{"cem", "cento", "duzentos", "trezentos", "quatrocentos", "quinhentos", "seiscentos", "setecentos", "oitocentos", "novecentos"},
@@ -115,6 +115,22 @@ char *leitura(int x){
 	return resp;
 }
 
+char *tokenize(char *texto){
+	char token[10];
+	char *p, *q;
+	char i;
+	p = texto;
+	q = texto;
+	
+	do{
+		//printf("%c ", *p);
+		token[p-q] = *p;
+		p++;
+	} while(*p != 'S');
+	printf("token:%s\n", token);
+	return texto;
+}
+
 int main (int argc, char *argv[]) {
 //    FILE *entrada, *saida;
 //    /* Declara??o de suas vari?veis */
@@ -138,7 +154,8 @@ int main (int argc, char *argv[]) {
     /* ... */
 	//printf("%s\n", leitura(atoi(++*argv)));
 	//printf("argv = %s, argv++ = %s\n", *argv, *(argv+1));
-	leitura(atoi(*++argv));
+	//leitura(atoi(*++argv));
+	tokenize(*(++argv));
 	//printf("%d\n", removePivo(atoi(*++argv)));
     return 0;
 }
