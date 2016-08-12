@@ -49,7 +49,7 @@ char *palavra(int *x){
 	switch (pivo){
 		case 1:
 			if(nextToken(*x))
-			conjuncao = "e ";
+			conjuncao = " e";
 			if(*x / 10 == 1)
 				X = *x % 10;
 			else
@@ -58,7 +58,7 @@ char *palavra(int *x){
 		case 2:
 			pivo++;
 			if(nextToken(*x))
-				conjuncao = "e ";
+				conjuncao = " e";
 			//printf("teste %d %d\npalavra %d, %d\n",  (*x)/100, (*x)%100, pivo, X);
 			if((*x)/100 == 1 && !((*x)%100))
 				X--;
@@ -70,13 +70,13 @@ char *palavra(int *x){
 			}
 			else
 				pivo = 0;
-			grandeza = "mil ";
+			grandeza = " mil";
 			//a = (*x % 1000)/100;
 			//b = (*x)%100;
 			//printf("nt: %d\nnt/100: %d\nnt%%100: %d\n", nextToken(*x), a, b);
 			if(nextToken(*x))
 				if((((*x % 1000)/100) && !((*x)%100)) || (!((*x % 1000)/100) && (*x)%100))
-					conjuncao = "e ";
+					conjuncao = " e";
 			break;
 	}		
 	
@@ -84,7 +84,6 @@ char *palavra(int *x){
 	
 	palavra = (char *) malloc(2+strlen(numero[pivo][X]));
 	strcpy(palavra, numero[pivo][X]);
-	strcat(palavra, " ");
 	
 	//printf("palavra resp: %s\n", palavra);
 	//printf("gdz = %d\n", og);
@@ -106,9 +105,12 @@ char *leitura(int x){
 		strcat(anterior, resp);
 		obtida = palavra(&x);
 	//	printf("get palavra(%d) -> %s\n", x, obtida);
-		resp = (char *) malloc(1+strlen(anterior)+strlen(obtida));
+		resp = (char *) malloc(2+strlen(anterior)+strlen(obtida));
 		strcat(resp, anterior);
+		printf("nt(%d) = %d\n", x, nextToken(x));
 		strcat(resp, obtida);
+		if(strlen(resp) > 0 && nextToken(x))
+			strcat(resp, " ");
 		x = nextToken(x);
 		//printf("resp = %s\n", resp);
 	} while(x);
@@ -118,7 +120,7 @@ char *leitura(int x){
 char *tokenize(char *texto){
 	char token[10];
 	char *p, *q, *inteiro, *cent, *moeda;
-	chat *teste = "RS";
+	char *teste = "RS";
 	char i;
 	p = texto;
 	q = texto;
@@ -128,11 +130,11 @@ char *tokenize(char *texto){
 		token[p-q] = *p;
 		p++;
 	}
-	//token[p - q] = '\0';
+	token[p - q] = '\0';
 	printf("moeda [%s]", token); 
-	if(token == "RS\0")
+	if(!strcmp(token, "RS"))
 		moeda = "reais";
-	else if (token == "US\0")
+	else if (!strcmp(token, "US"))
 		moeda = "dólares";
 	else
 		moeda = "erro";
@@ -142,13 +144,16 @@ char *tokenize(char *texto){
 		token[p-q] = *p;
 		p++;
 	} while(*p != ',');
-	//token[p-q] = '\0';
+	token[p-q] = '\0';
 	inteiro = leitura(atoi(token));
 	//printf("%s\n", inteiro);
-	p++;
-	token[0] = *p;
-	p++;
-	token[1] = *p;
+	q = ++p;
+	do{
+		token[p-q] = *p;
+		p++;
+	} while(*p != '\0');
+	token[p-q] = '\0';
+	printf("centavos: %s\n", token);
 	//token[2] = '\0';
 	cent = leitura(atoi(token));
 	printf("%s %s e %s centavos\n", inteiro, moeda, cent);
