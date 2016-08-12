@@ -6,20 +6,25 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Para um inteiro, descarta o token que já foi lido e interpretado (para a leitura por extenso) e retorna o inteiro restante*/
+/* Ex.: para x = 314, dado que o primeiro token já foi lido, 'trezentos', retorna o próximo inteiro para o qual deve-se fazer a leitura, ou seja, 14*/
 int nextToken(int x){
+	/*Valor de resposta*/
 	int nt;
+	/*Valor de x que será alterado*/
 	int y = x;
+	/*Representa a maior potência de 10 menor ou igual a x. Útil para se remover o algarismo mais significante de x*/
 	int base = 1;
-	if(10 < x && x < 20)
+	/*No caso de 10 < x < 20, i.e, onze, doze, ..., dezenove; não haverá a busca pela unidade, logo não haverá um próximo token e a leitura por extenso terminará.*/ 
+	if(10 < y && y < 20)
 		nt = 0;
 	else{
-		while(x / 10){
-			x /= 10;
+		while(y / 10){
+			y /= 10;
 			base *= 10;
 		}
-		nt = y - x*base;
+		nt = x - y*base;
 	}
-	//printf("NT(%d) = %d \n", y, nt);
 	return nt;
 }
 
@@ -38,13 +43,10 @@ char *palavra(int *x){
 		{"cem", "cento", "duzentos", "trezentos", "quatrocentos", "quinhentos", "seiscentos", "setecentos", "oitocentos", "novecentos"},
 	};
 	
-	//printf("palavra x = %d\n", *x);
 	while(X / 10){
 		pivo++;
 		X /= 10;
 	}
-	
-	//printf("pivo = %d\n", pivo);
 	
 	switch (pivo){
 		case 1:
@@ -59,7 +61,6 @@ char *palavra(int *x){
 			pivo++;
 			if(nextToken(*x))
 				conjuncao = " e";
-			//printf("teste %d %d\npalavra %d, %d\n",  (*x)/100, (*x)%100, pivo, X);
 			if((*x)/100 == 1 && !((*x)%100))
 				X--;
 			break;
@@ -71,26 +72,17 @@ char *palavra(int *x){
 			else
 				pivo = 0;
 			grandeza = " mil";
-			//a = (*x % 1000)/100;
-			//b = (*x)%100;
-			//printf("nt: %d\nnt/100: %d\nnt%%100: %d\n", nextToken(*x), a, b);
 			if(nextToken(*x))
 				if((((*x % 1000)/100) && !((*x)%100)) || (!((*x % 1000)/100) && (*x)%100))
 					conjuncao = " e";
 			break;
-	}		
-	
-	//printf("get numero(%d)(%d)\n", pivo, X);
+	}
 	
 	palavra = (char *) malloc(2+strlen(numero[pivo][X]));
 	strcpy(palavra, numero[pivo][X]);
 	
-	//printf("palavra resp: %s\n", palavra);
-	//printf("gdz = %d\n", og);
 	resp = (char *) malloc(1+strlen(palavra)+strlen(grandeza)+strlen(conjuncao));
 	strcat(resp, palavra);strcat(resp, grandeza);strcat(resp, conjuncao); 
-	
-	//printf("palavra returns: %s\n", resp);
 	
 	return resp;	
 }
@@ -100,24 +92,20 @@ char *leitura(int x){
 	char *obtida = "";
 	char *resp = "";
 	do{
-	//	printf("leitura x=%d\n", x);
 		anterior = malloc(1+strlen(resp));
 		strcat(anterior, resp);
 		obtida = palavra(&x);
-	//	printf("get palavra(%d) -> %s\n", x, obtida);
 		resp = (char *) malloc(2+strlen(anterior)+strlen(obtida));
 		strcat(resp, anterior);
-		//printf("nt(%d) = %d\n", x, nextToken(x));
 		strcat(resp, obtida);
 		if(strlen(resp) > 0 && nextToken(x))
 			strcat(resp, " ");
 		x = nextToken(x);
-		//printf("resp = %s\n", resp);
 	} while(x);
 	return resp;
 }
 
-char gerador(char *texto){
+char gerador(char *texto, FILE *saida){
 	char token[10];
 	char *p, *q, *inteiro, *cent, *moeda, *centavos;
 	char *teste = "RS";
@@ -127,12 +115,10 @@ char gerador(char *texto){
 	q = texto;
 	
 	while(*(p-1) != '$'){
-		//printf("%c ", *p);
 		token[p-q] = *p;
 		p++;
 	}
 	token[p - q] = '\0';
-	//printf("moeda [%s]", token); 
 	if(!strcmp(token, "R$"))
 		moeda = "reais";
 	else if (!strcmp(token, "US$"))
@@ -141,22 +127,18 @@ char gerador(char *texto){
 		moeda = "erro";
 	q = p;
 	do{
-		//printf("%c ", *p);
 		token[p-q] = *p;
 		p++;
 	} while(*p != ',');
 	token[p-q] = '\0';
 	maior = atoi(token);
 	inteiro = leitura(maior);
-	//printf("%s\n", inteiro);
 	q = ++p;
 	do{
 		token[p-q] = *p;
 		p++;
 	} while(p - q < 2);
 	token[p-q] = '\0';
-	//printf("centavos: %s\n", token);
-	//token[2] = '\0';
 	if(atoi(token) > 1)
 		centavos = "centavos";
 	else if(atoi(token) == 1)
@@ -167,18 +149,18 @@ char gerador(char *texto){
 		centavos = "erro";
 	cent = leitura(atoi(token));
 	if (maior > 0)
-		printf("%s %s e %s %s\n", inteiro, moeda, cent, centavos);
+		fprintf(saida, "%s %s e %s %s\n", inteiro, moeda, cent, centavos);
 	else if (!maior)
-		printf("%s %s de %s\n", cent, centavos, moeda);
-	else printf("erro: %d\n", maior);
+		fprintf(saida, "%s %s de %s\n", cent, centavos, moeda);
+	else fprintf(saida, "erro: %d\n", maior);
 }
 
 int main (int argc, char *argv[]) {
     FILE *entrada, *saida;
-    /* Declara??o de suas vari?veis */
+    /* Declaração de suas variáveis */
 	char caso[500];
 	
-    /* Verifica se numero de argumentos de entrada e' suficiente */
+    /* Verifica se numero de argumentos de entrada é suficiente */
     if (argc < 3) {
         printf("Numero de parametros insuficiente:\n\tuse %s arquivo_entrada arquivo_saida\n", argv[0]);
     }
@@ -192,17 +174,15 @@ int main (int argc, char *argv[]) {
         printf("Nao foi possivel abir o arquivo %s para escrita. Abortando...\n", argv[2]);
         return 1;
     }
-    /* Seu c?digo */
-    /* ... */
-	//printf("%s\n", leitura(atoi(++*argv)));
-	//printf("argv = %s, argv++ = %s\n", *argv, *(argv+1));
-	//leitura(atoi(*++argv));
-	//gerador(*(++argv));
-	//printf("%d\n", removePivo(atoi(*++argv)));
+	
+    /* Seu código */
 	while(fscanf(entrada, "%s", caso) != EOF){
 		printf("%s\t", caso);
-		gerador(caso);
+		gerador(caso, saida);
 	}
+	
+	fclose(entrada);
+	fclose(saida);
 	
     return 0;
 }
