@@ -117,11 +117,12 @@ char *leitura(int x){
 	return resp;
 }
 
-char *tokenize(char *texto){
+void gerador(char *texto){
 	char token[10];
-	char *p, *q, *inteiro, *cent, *moeda;
+	char *p, *q, *inteiro, *cent, *moeda, *centavos;
 	char *teste = "RS";
 	char i;
+	int maior;
 	p = texto;
 	q = texto;
 	
@@ -145,7 +146,8 @@ char *tokenize(char *texto){
 		p++;
 	} while(*p != ',');
 	token[p-q] = '\0';
-	inteiro = leitura(atoi(token));
+	maior = atoi(token);
+	inteiro = leitura(maior);
 	//printf("%s\n", inteiro);
 	q = ++p;
 	do{
@@ -155,35 +157,46 @@ char *tokenize(char *texto){
 	token[p-q] = '\0';
 	printf("centavos: %s\n", token);
 	//token[2] = '\0';
+	if(atoi(token) > 1)
+		centavos = "centavos";
+	else if(atoi(token) == 1)
+		centavos = "centavo";
+	else if(atoi(token))
+		centavos = "centavos";
+	else
+		centavos = "erro";
 	cent = leitura(atoi(token));
-	printf("%s %s e %s centavos\n", inteiro, moeda, cent);
+	if (maior > 0)
+		printf("%s %s e %s %s\n", inteiro, moeda, cent, centavos);
+	else if (!maior)
+		printf("%s %s de %s\n", cent, centavos, moeda);
+	else printf("erro: %d\n", maior);
 }
 
 int main (int argc, char *argv[]) {
-//    FILE *entrada, *saida;
-//    /* Declara??o de suas vari?veis */
+    FILE *entrada, *saida;
+    /* Declara??o de suas vari?veis */
 	
-	
-//    /* Verifica se numero de argumentos de entrada e' suficiente */
-//    if (argc < 3) {
-//        printf("Numero de parametros insuficiente:\n\tuse %s arquivo_entrada arquivo_saida\n", argv[0]);
-//    }
+    /* Verifica se numero de argumentos de entrada e' suficiente */
+    if (argc < 3) {
+        printf("Numero de parametros insuficiente:\n\tuse %s arquivo_entrada arquivo_saida\n", argv[0]);
+    }
     /* Abre arquivo de entrada; termina programa em caso de falha */
-//    if (!(entrada = fopen(argv[1], "r"))) {
-//        printf("Nao foi possivel abir o arquivo %s para leitura. Abortando...\n", argv[1]);
-//        return 1;
-//    }
+    if (!(entrada = fopen(argv[1], "r"))) {
+        printf("Nao foi possivel abir o arquivo %s para leitura. Abortando...\n", argv[1]);
+        return 1;
+    }
     /* Abre arquivo de saida; termina programa em caso de falha */
-//    if (!(saida = fopen(argv[2], "w"))) {
-//        printf("Nao foi possivel abir o arquivo %s para escrita. Abortando...\n", argv[2]);
-//        return 1;
-//    }
+    if (!(saida = fopen(argv[2], "w"))) {
+        printf("Nao foi possivel abir o arquivo %s para escrita. Abortando...\n", argv[2]);
+        return 1;
+    }
     /* Seu c?digo */
     /* ... */
 	//printf("%s\n", leitura(atoi(++*argv)));
 	//printf("argv = %s, argv++ = %s\n", *argv, *(argv+1));
 	//leitura(atoi(*++argv));
-	tokenize(*(++argv));
+	//gerador(*(++argv));
 	//printf("%d\n", removePivo(atoi(*++argv)));
     return 0;
 }
