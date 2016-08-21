@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+
 /* Para um inteiro, descarta o token que já foi lido e interpretado (para a leitura por extenso) e retorna o inteiro restante*/
 /* Ex.: para x = 314, dado que o primeiro token já foi lido, 'trezentos', retorna o próximo inteiro para o qual deve-se fazer a leitura, ou seja, 14*/
 int nextToken(int x){
@@ -110,7 +112,7 @@ char gerador(char *texto, FILE *saida){
 	char *p, *q, *inteiro, *cent, *moeda, *centavos;
 	char *teste = "RS";
 	char i;
-	int maior;
+	int maior, decimalInt;
 	p = texto;
 	q = texto;
 	
@@ -139,20 +141,29 @@ char gerador(char *texto, FILE *saida){
 		p++;
 	} while(p - q < 2);
 	token[p-q] = '\0';
-	if(atoi(token) > 1)
+	decimalInt = atoi(token);
+	if(decimalInt > 1)
 		centavos = "centavos";
-	else if(atoi(token) == 1)
+	else if(decimalInt == 1)
 		centavos = "centavo";
-	else if(!atoi(token))
+	else if(!decimalInt)
 		centavos = "centavos";
 	else
 		centavos = "erro";
-	cent = leitura(atoi(token));
-	if (maior > 0)
+	cent = leitura(decimalInt);
+	if(maior == 1 || !maior && (decimalInt == 1))
+		if (moeda == "reais")
+			moeda = "real";
+		else if (moeda == "dólares")
+			moeda = "dólar";
+		else
+			moeda = "erro na moeda";
+	printf("maior %d\tcent%d\n", maior, decimalInt);
+	if (!maior && decimalInt)
+		fprintf(saida, "%s %s de %s\n", cent, centavos, moeda);	
+	 else
 		fprintf(saida, "%s %s e %s %s\n", inteiro, moeda, cent, centavos);
-	else if (!maior)
-		fprintf(saida, "%s %s de %s\n", cent, centavos, moeda);
-	else fprintf(saida, "erro: %d\n", maior);
+	//else fprintf(saida, "erro: %d\n", maior);
 }
 
 int main (int argc, char *argv[]) {
@@ -177,7 +188,7 @@ int main (int argc, char *argv[]) {
 	
     /* Seu código */
 	while(fscanf(entrada, "%s", caso) != EOF){
-		printf("%s\t", caso);
+		//printf("%s\t", caso);
 		gerador(caso, saida);
 	}
 	
